@@ -40,7 +40,8 @@ private enum Stop {
 
 class Interp {
 
-	public var variables : Map<String,Dynamic>;
+	public var staticExtensions : Map<String, Function>;
+	public var variables : Map<String, Dynamic>;
 	var locals : Map<String, HScriptLocal>;
 	var binops : Map<String, Expr -> Expr -> Dynamic >;
 
@@ -61,6 +62,8 @@ class Interp {
 	}
 
 	private function resetVariables(){
+		staticExtensions = new Map<String,Function>();
+
 		variables = new Map<String,Dynamic>();
 		variables.set("null",null);
 		variables.set("true",true);
@@ -546,6 +549,16 @@ class Interp {
 			}
 
 			variables.set(rename, cls);
+		case EUsing(name):
+			var c = Type.resolveClass(name);
+			if( c == null ) c = resolve(name);
+
+			Sys.println(name + " | " + c + " | " + Type.getClassFields(c));
+			for (field in Type.getClassFields(c)) {
+				final func:Function = Reflect.getProperty(c, field);
+				if ( Reflect.isFunction(func) )
+					staticExtensions.set(field, func);
+			}
 		case ECheckType(e,_):
 			return expr(e);
 		}
@@ -667,7 +680,8 @@ class Interp {
 
 	function get( o : Dynamic, f : String ) : Dynamic {
 		if ( o == null ) error(EInvalidAccess(f));
-		return {
+
+		var prop = {
 			#if php
 				// https://github.com/HaxeFoundation/haxe/issues/4915
 				try {
@@ -678,7 +692,9 @@ class Interp {
 			#else
 				Reflect.getProperty(o, f);
 			#end
-		}
+		};
+
+		return prop;
 	}
 
 	function set( o : Dynamic, f : String, v : Dynamic ) : Dynamic {
@@ -688,7 +704,12 @@ class Interp {
 	}
 
 	function fcall( o : Dynamic, f : String, args : Array<Dynamic> ) : Dynamic {
-		return call(o, get(o, f), args);
+		var func = get(o, f);
+		if ( func == null && staticExtensions.exists(f) ) { // very unsafe but I don't feel like grabbing the parameter types
+			func = staticExtensions.get(f);
+			args.insert(0, o);
+		}
+		return call(o, func, args);
 	}
 
 	function call( o : Dynamic, f : Dynamic, args : Array<Dynamic> ) : Dynamic {

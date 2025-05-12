@@ -781,6 +781,7 @@ class Parser {
 				case TDot: // append the package.
 					ident += "." + getIdent();
 				case TSemicolon: // no as, no rename.
+					push(tk);
 					break;
 				case TId("as"):
 					rename = getIdent();
@@ -791,6 +792,25 @@ class Parser {
 			}
 
 			mk(EImport(ident, rename), p1);
+		case "using":
+			var ident = getIdent();
+
+			while ( true ) {
+				var tk = token();
+
+				switch( tk ) {
+				case TDot: // append the package.
+					ident += "." + getIdent();
+				case TSemicolon:
+					push(tk);
+					break;
+				default:
+					unexpected(tk);
+					break;
+				}
+			}
+
+			mk(EUsing(ident), p1);
 		default:
 			null;
 		}

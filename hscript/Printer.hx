@@ -328,6 +328,9 @@ class Printer {
 				add(" as ");
 				add(rename);
 			}
+		case EUsing(name):
+			add("using ");
+			add(name);
 		case ECheckType(e, t):
 			add("(");
 			expr(e);

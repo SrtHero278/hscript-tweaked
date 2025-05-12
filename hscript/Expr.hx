@@ -67,6 +67,7 @@ enum Expr {
 	EDoWhile( cond : Expr, e : Expr);
 	EMeta( name : String, args : Array<Expr>, e : Expr );
 	EImport( name : String, ?rename : String);
+	EUsing( name : String );
 	ECheckType( e : Expr, t : CType );
 }
 
