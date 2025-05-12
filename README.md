@@ -1,3 +1,8 @@
+PULL REQUESTING THIS OFFICIALLY IS NOT RECOMMENDED.
+=======
+
+This is mainly a branch to add features for personal project use. Although nice to have, these were implemented by someone (me) only slightly familiar with the backend.
+
 hscript
 =======
 
