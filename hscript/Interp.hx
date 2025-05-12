@@ -22,7 +22,7 @@
 package hscript;
 import haxe.PosInfos;
 import hscript.Expr;
-import haxe.Constraints.IMap;
+import haxe.Constraints;
 
 private enum Stop {
 	SBreak;
@@ -30,15 +30,23 @@ private enum Stop {
 	SReturn;
 }
 
+@:structInit class HScriptLocal {
+	public var r:Dynamic;
+}
+@:structInit class HScriptDeclare {
+	public var n:String;
+	public var old:HScriptLocal;
+}
+
 class Interp {
 
 	public var variables : Map<String,Dynamic>;
-	var locals : Map<String,{ r : Dynamic }>;
+	var locals : Map<String, HScriptLocal>;
 	var binops : Map<String, Expr -> Expr -> Dynamic >;
 
 	var depth : Int;
 	var inTry : Bool;
-	var declared : Array<{ n : String, old : { r : Dynamic } }>;
+	var declared : Array<HScriptDeclare>;
 	var returnValue : Dynamic;
 
 	#if hscriptPos
@@ -437,7 +445,7 @@ class Interp {
 				} else {
 					// function-in-function is a local function
 					declared.push( { n : name, old : locals.get(name) } );
-					var ref = { r : f };
+					var ref:HScriptLocal = { r : f };
 					locals.set(name, ref);
 					capturedLocals.set(name, ref); // allow self-recursion
 				}
