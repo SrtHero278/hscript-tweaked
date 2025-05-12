@@ -771,6 +771,29 @@ class Parser {
 				}
 			}
 			mk(ESwitch(e, cases, def), p1, tokenMax);
+		case "import":
+			var ident = getIdent();
+			Sys.println(ident);
+			var rename = null;
+
+			while ( rename == null ) {
+				var tk = token();
+				Sys.println(tk);
+				switch( tk ) {
+				case TDot: // append the package.
+					ident += "." + getIdent();
+					Sys.println(ident);
+				case TSemicolon: // no as, no rename.
+					break;
+				case TId("as"):
+					rename = getIdent();
+				default:
+					unexpected(tk);
+					break;
+				}
+			}
+
+			mk(EImport(ident, rename), p1);
 		default:
 			null;
 		}

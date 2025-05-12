@@ -66,6 +66,7 @@ enum Expr {
 	ESwitch( e : Expr, cases : Array<{ values : Array<Expr>, expr : Expr }>, ?defaultExpr : Expr);
 	EDoWhile( cond : Expr, e : Expr);
 	EMeta( name : String, args : Array<Expr>, e : Expr );
+	EImport( name : String, ?rename : String);
 	ECheckType( e : Expr, t : CType );
 }
 

@@ -528,6 +528,16 @@ class Interp {
 			return val;
 		case EMeta(_, _, e):
 			return expr(e);
+		case EImport(name, rename):
+			if ( rename == null ) rename = name.substring(name.lastIndexOf(".") + 1, name.length);
+
+			var cls : Dynamic = Type.resolveClass(name);
+			if ( cls == null ) cls = Type.resolveEnum(name);
+			if ( cls == null) {
+				error(ECustom("Invalid Import: " + name));
+			}
+
+			variables.set(rename, cls);
 		case ECheckType(e,_):
 			return expr(e);
 		}
